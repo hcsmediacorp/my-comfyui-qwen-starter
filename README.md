@@ -79,6 +79,7 @@ Wenn Build/Install fehlschlägt, wird folgende Reihenfolge angewendet und dokume
 11. Build-Fix: inkompatibles Flag `--skip-pip` entfernt (in comfy-cli 1.7.3 nicht unterstützt)
 12. Build-Fix: zweites `comfy install` Prompt (Installationsbestätigung) automatisiert (`n` für Tracking, `y` für ComfyUI-Install), danach Symlink nach `/workspace/ComfyUI`
 13. Runtime-Fix: `start.sh` nutzt jetzt standardmäßig absoluten Pfad `/workspace/ComfyUI` statt relativem `./ComfyUI`
+14. Runtime-Fix: `app.py` wird über absoluten Pfad `/app.py` gestartet (statt relativem `../app.py`)
 
 ## Nächste Schritte
 Ich führe den kompletten Publish-Flow (GitHub Repo + HF Space + Secret + Deployment) direkt aus, sobald GitHub- und Hugging-Face-Zugriff bereitstehen.
