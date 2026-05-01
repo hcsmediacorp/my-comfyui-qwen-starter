@@ -9,7 +9,9 @@ RUN apt-get update && apt-get install -y \
 RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 RUN pip install --upgrade pip && pip install comfy-cli
-RUN comfy install --skip-pip --cpu
+# Non-interaktiv für CI/Space-Build
+ENV CI=1
+RUN printf 'n\n' | comfy install --skip-pip --cpu
 
 WORKDIR /workspace/ComfyUI
 
