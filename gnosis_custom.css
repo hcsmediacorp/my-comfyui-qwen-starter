@@ -1,9 +1,29 @@
 :root {
-  --gnosis-bg: #070b12;
-  --gnosis-panel: #0f1624;
-  --gnosis-accent: #00e5ff;
-  --gnosis-text: #d7f6ff;
+  --mk-bg: #000000;
+  --mk-panel: #050b08;
+  --mk-neon-cyan: #00f5ff;
+  --mk-neon-green: #39ff14;
+  --mk-text: #c8ffd9;
+  --mk-font: "JetBrains Mono", "Fira Code", "SFMono-Regular", Menlo, Consolas, monospace;
 }
-body { background: var(--gnosis-bg) !important; color: var(--gnosis-text) !important; }
-.comfy-menu, .comfyui-body { background: var(--gnosis-panel) !important; }
-button { border-color: var(--gnosis-accent) !important; }
+
+body, html {
+  background: var(--mk-bg) !important;
+  color: var(--mk-text) !important;
+  font-family: var(--mk-font) !important;
+}
+
+.comfy-menu, .comfyui-body, .panel, .graph-canvas-container {
+  background: var(--mk-panel) !important;
+}
+
+button, .comfy-button {
+  border: 1px solid var(--mk-neon-cyan) !important;
+  color: var(--mk-neon-cyan) !important;
+  box-shadow: 0 0 8px rgba(0,245,255,.35);
+}
+
+.loading, .loading-text::before {
+  content: "DECRYPTING REALITY...";
+  color: var(--mk-neon-green) !important;
+}

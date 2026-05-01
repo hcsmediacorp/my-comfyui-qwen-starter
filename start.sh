@@ -14,4 +14,4 @@ mkdir -p /root/comfy/ComfyUI
 LOG_FILE="/root/comfy/ComfyUI/shwty_debug.log"
 
 # ComfyUI starten (CPU-only, ohne VRAM-Flags)
-python3 main.py --cpu --novram --listen 0.0.0.0 --port "${PORT}" --disable-smart-memory --preview-method auto 2>&1 | tee -a "${LOG_FILE}"
+python3 main.py --cpu --listen 0.0.0.0 --port "${PORT}" --disable-smart-memory --preview-method auto 2>&1 | tee -a "${LOG_FILE}"

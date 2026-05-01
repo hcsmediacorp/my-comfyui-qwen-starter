@@ -2,10 +2,15 @@
 
 RESOLVED: Mutually exclusive argument conflict (--lowvram vs --cpu).
 
-## Changes Applied
-- Replaced `--lowvram` with `--novram` in startup command.
-- Added `--disable-smart-memory` for stricter CPU behavior.
-- Added tee-based logging to `/root/comfy/ComfyUI/shwty_debug.log`.
+## Last Ritual
+Updated startup command to strict CPU-only flags:
+`python main.py --cpu --listen 0.0.0.0 --port 7860 --disable-smart-memory --preview-method auto`
 
-## Current Startup Command
-`python3 main.py --cpu --novram --listen 0.0.0.0 --port 7860 --disable-smart-memory --preview-method auto`
+## Gnosis Failure
+No fresh crash tail captured in this commit cycle; awaiting next runtime log tail from `/root/comfy/ComfyUI/shwty_debug.log`.
+
+## Proposed Fix
+If next failure is:
+- `ModuleNotFoundError` → install missing package in build
+- argument conflict → strip incompatible flags
+- memory-related → reduce model pressure (quantization/resolution/steps)
