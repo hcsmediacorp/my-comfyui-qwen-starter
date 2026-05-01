@@ -84,6 +84,9 @@ Wenn Build/Install fehlschlägt, wird folgende Reihenfolge angewendet und dokume
 16. Runtime-Fix: fehlende/umbenannte Modelldateien (404) führen nicht mehr zum Container-Abbruch; Downloads sind fehlertolerant und Startup läuft weiter
 17. Dependency-Fix: ComfyUI-Requirements werden explizit installiert (`/root/comfy/ComfyUI/requirements.txt`)
 18. Dependency-Fix: zusätzliche Pakete `alembic`, `Pillow`, `blake3` explizit vorinstalliert
+19. CPU-Hardening: `CUDA_VISIBLE_DEVICES=-1`, `TORCH_CUDA_ARCH_LIST=""`, `PYTHONUNBUFFERED=1`
+20. CPU-Startup-Flags: `--cpu --listen 0.0.0.0 --port 7860 --lowvram --preview-method auto`
+21. CPU-PyTorch-Index in `requirements.txt` gesetzt (`download.pytorch.org/whl/cpu`)
 
 ## Nächste Schritte
 Ich führe den kompletten Publish-Flow (GitHub Repo + HF Space + Secret + Deployment) direkt aus, sobald GitHub- und Hugging-Face-Zugriff bereitstehen.

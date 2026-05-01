@@ -9,5 +9,5 @@ cd "${COMFY_DIR}"
 # Optional: Modell-Dateien via Secret HF_TOKEN beim Start herunterladen
 python3 /app.py
 
-# ComfyUI starten (HF Spaces erwartet Port 7860)
-python3 main.py --listen 0.0.0.0 --port "${PORT}"
+# ComfyUI starten (erzwungener CPU-Modus, HF Spaces Port 7860)
+python3 main.py --cpu --listen 0.0.0.0 --port "${PORT}" --lowvram --preview-method auto
