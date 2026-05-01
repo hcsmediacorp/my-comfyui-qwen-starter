@@ -27,6 +27,10 @@ def ensure_dirs():
 
 
 def maybe_download():
+    if os.getenv('SKIP_MODEL_DOWNLOAD', '0') == '1':
+        print('SKIP_MODEL_DOWNLOAD=1; skipping model download.')
+        return
+
     token = os.getenv('HF_TOKEN')
     if not token:
         print('HF_TOKEN not set; skipping model download at startup.')
@@ -40,13 +44,19 @@ def maybe_download():
                 print(f'Exists, skip: {target_path}')
                 continue
             print(f'Downloading {repo_id}/{filename} -> {dest}')
-            hf_hub_download(
-                repo_id=repo_id,
-                filename=filename,
-                token=token,
-                local_dir=str(dest),
-                local_dir_use_symlinks=False,
-            )
+            try:
+                hf_hub_download(
+                    repo_id=repo_id,
+                    filename=filename,
+                    token=token,
+                    local_dir=str(dest),
+                )
+            except (RemoteEntryNotFoundError, HfHubHTTPError) as e:
+                print(f'WARN: could not download {repo_id}/{filename}: {e}')
+                print('Continuing startup. Set correct file names via env vars if needed.')
+            except Exception as e:
+                print(f'WARN: unexpected download error for {repo_id}/{filename}: {e}')
+                print('Continuing startup.')
 
 
 if __name__ == '__main__':

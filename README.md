@@ -81,6 +81,7 @@ Wenn Build/Install fehlschlägt, wird folgende Reihenfolge angewendet und dokume
 13. Runtime-Fix: `start.sh` nutzt jetzt standardmäßig absoluten Pfad `/workspace/ComfyUI` statt relativem `./ComfyUI`
 14. Runtime-Fix: `app.py` wird über absoluten Pfad `/app.py` gestartet (statt relativem `../app.py`)
 15. Runtime-Fix: fehlendes `huggingface_hub` behoben durch Installation von `/requirements.txt` im Docker-Build
+16. Runtime-Fix: fehlende/umbenannte Modelldateien (404) führen nicht mehr zum Container-Abbruch; Downloads sind fehlertolerant und Startup läuft weiter
 
 ## Nächste Schritte
 Ich führe den kompletten Publish-Flow (GitHub Repo + HF Space + Secret + Deployment) direkt aus, sobald GitHub- und Hugging-Face-Zugriff bereitstehen.
