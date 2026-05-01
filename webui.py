@@ -31,29 +31,14 @@ def run_edit(image, prompt):
     image.save(INPUT_DIR / in_name)
 
     seed = random.randint(1, 2_147_483_647)
-    wf = load_workflow()
-
-    # Best-effort node patching
-    try:
-        for node in wf.get("nodes", []):
-            t = node.get("type", "")
-            vals = node.get("widgets_values", [])
-            if t == "KSampler" and len(vals) >= 4:
-                vals[0] = seed      # seed
-                vals[2] = 4         # steps fixed
-                vals[3] = 1.1       # cfg fixed
-            elif t == "CLIPTextEncode" and vals:
-                if "blurry" in str(vals[0]).lower():
-                    continue
-                vals[0] = prompt.strip()
-    except Exception:
-        pass
+    _ = load_workflow()  # reserved for future node-mapping
+    comfy_prompt = build_prompt_payload(prompt.strip(), seed)
 
     # Queue prompt (if Comfy API ready)
     try:
-        r = requests.post(f"{COMFY_URL}/prompt", json={"prompt": wf}, timeout=20)
+        r = requests.post(f"{COMFY_URL}/prompt", json={"prompt": comfy_prompt}, timeout=20)
         if r.status_code >= 300:
-            return None, f"ComfyUI Fehler: {r.status_code} {r.text[:200]}"
+            return None, simplify_comfy_error(r.status_code, r.text)
     except Exception as e:
         return None, f"ComfyUI nicht erreichbar: {e}"
 
