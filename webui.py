@@ -54,17 +54,17 @@ def resolve_checkpoint_name():
                 except Exception:
                     pass
 
-    if (ckpt_dir / preferred).exists():
-        return preferred
     if ckpt_dir.exists():
         files = sorted([x.name for x in ckpt_dir.iterdir() if x.is_file() or x.is_symlink()])
+        if preferred in files:
+            return preferred, files
         if files:
-            return files[0]
-    return preferred
+            return files[0], files
+    return preferred, []
 
 
 def build_prompt_payload(prompt_text: str, seed: int, steps: int, cfg: float, sampler: str, scheduler: str):
-    ckpt = resolve_checkpoint_name()
+    ckpt, _ = resolve_checkpoint_name()
     return {
         "1": {"class_type": "CheckpointLoaderSimple", "inputs": {"ckpt_name": ckpt}},
         "2": {"class_type": "CLIPTextEncode", "inputs": {"text": prompt_text, "clip": ["1", 1]}},
@@ -121,6 +121,11 @@ def run_edit(image, prompt, adv_enabled, steps, cfg, sampler, scheduler, seed_va
         seed = random.randint(1, 2_147_483_647)
 
     image.save(INPUT_DIR / f"input_{int(time.time())}.png")
+
+    ckpt, available = resolve_checkpoint_name()
+    if not available:
+        return None, "Kein Modell gefunden. Bitte warte, bis der Download abgeschlossen ist, oder lege ein Modell in ComfyUI/models/checkpoints ab.", 0
+
     payload = {"prompt": build_prompt_payload(prompt.strip(), seed, run_steps, run_cfg, run_sampler, run_scheduler)}
 
     try:
