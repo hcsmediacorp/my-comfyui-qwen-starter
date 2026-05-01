@@ -5,8 +5,10 @@ RUN apt-get update && apt-get install -y \
   libgl1-mesa-glx libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1 \
   && rm -rf /var/lib/apt/lists/*
 
-# ComfyUI Installation mit comfy-cli
-RUN pip3 install --upgrade pip && pip3 install comfy-cli
+# ComfyUI Installation mit comfy-cli (PEP668-safe via venv)
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+RUN pip install --upgrade pip && pip install comfy-cli
 RUN comfy install --skip-pip --cpu
 
 WORKDIR /workspace/ComfyUI

@@ -74,6 +74,7 @@ Wenn Build/Install fehlschlägt, wird folgende Reihenfolge angewendet und dokume
 6. README inkl. CPU-Optimierungs- und Fehlerstrategie dokumentiert
 7. Build-Fix: `WORKDIR` auf `/workspace/ComfyUI` korrigiert, damit `custom_nodes` beim Docker-Build existiert
 8. Build-Fix: `app.py` auf relative/konfigurierbare Pfade (`COMFY_DIR`) umgestellt
+9. Build-Fix: PEP668-Fehler gelöst durch Python-Venv (`/opt/venv`) und Installation über `pip` im Venv statt System-`pip3`
 
 ## Nächste Schritte
 Ich führe den kompletten Publish-Flow (GitHub Repo + HF Space + Secret + Deployment) direkt aus, sobald GitHub- und Hugging-Face-Zugriff bereitstehen.
