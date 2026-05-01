@@ -31,8 +31,8 @@ Docker-basierter Starter für **Hugging Face Spaces (CPU)** mit **ComfyUI**, **C
 
 ## CPU-Optimierung (Entscheidungen)
 Für kostenlose CPU-Instanzen ist Effizienz priorisiert:
-- Primär: `Q4_K_M.gguf` (guter Kompromiss aus RAM/Qualität)
-- Fallback bei Ressourcenproblemen: `Q2_K` (weniger RAM, schnelleres Laden, geringere Qualität)
+- Primär (jetzt gesetzt): `qwen-image-edit-2511-Q2_K.gguf` (maximal CPU-effizient)
+- Optional per ENV überschreibbar: `QWEN_DIFFUSION_FILE` (z. B. auf ein Q4-Modell)
 - Sampler-Setup: 4 Steps, CFG 1.0–1.5, LoRA mit moderater Stärke
 
 ## Wichtiger Hinweis zu Modellgrößen

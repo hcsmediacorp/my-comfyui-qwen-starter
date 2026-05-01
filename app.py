@@ -7,7 +7,7 @@ COMFY_DIR = Path(os.getenv('COMFY_DIR', './ComfyUI'))
 BASE = COMFY_DIR / 'models'
 TARGETS = {
     'diffusion_models': [
-        ('unsloth/Qwen-Image-Edit-2511-GGUF', 'Q4_K_M.gguf'),
+        ('unsloth/Qwen-Image-Edit-2511-GGUF', os.getenv('QWEN_DIFFUSION_FILE', 'qwen-image-edit-2511-Q2_K.gguf')),
     ],
     'text_encoders': [
         ('unsloth/Qwen-Image-Edit-2511-GGUF', 'qwen2.5-vl-7b-edit-q4_0.gguf'),
