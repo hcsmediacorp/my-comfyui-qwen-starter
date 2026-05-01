@@ -1,30 +1,25 @@
 # SHWTY Report
 
-RESOLVED: Mutually exclusive argument conflict (--lowvram vs --cpu).
-
 ## Last Ritual
-Modified Gradio API payload structure to include valid `class_type` and `inputs` for every Comfy node sent to `/prompt`.
+- Reworked Gradio bridge payload to strict Comfy node-map (`class_type` + `inputs`).
+- Added functional Advanced mappings: Steps, CFG, Sampler, Scheduler, Seed, Randomize toggle.
+- Added CPU-stable defaults (768x768 latent, steps=4, cfg=1.1).
 
-## Log Snippet
-Old malformed payload (triggered 400):
-```json
-{"prompt": {"nodes": [...], "links": [...], "version": 0.4}}
-```
+## Memory Benchmarks (CPU target)
+- Default mode: 4 steps, cfg 1.1, 768x768, random seed.
+- Expected lower RAM pressure vs prior 1024x1024 baseline.
 
-New corrected payload:
-```json
-{
-  "prompt": {
-    "1": {"class_type": "CheckpointLoaderSimple", "inputs": {"ckpt_name": "qwen-image-edit-2511-Q2_K.gguf"}},
-    "2": {"class_type": "CLIPTextEncode", "inputs": {"text": "<user prompt>", "clip": ["1", 1]}},
-    "5": {"class_type": "KSampler", "inputs": {"seed": "<random>", "steps": 4, "cfg": 1.1, "model": ["1", 0], "positive": ["2", 0]}}
-  }
-}
-```
-Sent to: `http://127.0.0.1:8188/prompt`
+## Advanced Tab Mapping (confirmed)
+- Steps slider -> KSampler.steps
+- CFG slider -> KSampler.cfg
+- Sampler dropdown -> KSampler.sampler_name
+- Scheduler dropdown -> KSampler.scheduler
+- Seed + Randomize -> KSampler.seed
 
-## Gnosis Failure
-`missing_node_type` from malformed prompt structure.
+## Gnosis Failure (last known)
+- 400 `missing_node_type` from malformed workflow payload (resolved).
 
-## Proposed Fix
-Keep strict prompt-schema validation before POST: every node must include `class_type` + `inputs`; map user prompt only into CLIPTextEncode node.
+## Proposed Fix (next if MemoryError appears)
+- Reduce latent to 640x640 then 512x512.
+- Reduce steps to 2–3.
+- Keep Q2_K diffusion file and random seed.
