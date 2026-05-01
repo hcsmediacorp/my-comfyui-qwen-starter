@@ -4,6 +4,9 @@
 - Reworked Gradio bridge payload to strict Comfy node-map (`class_type` + `inputs`).
 - Added functional Advanced mappings: Steps, CFG, Sampler, Scheduler, Seed, Randomize toggle.
 - Added CPU-stable defaults (768x768 latent, steps=4, cfg=1.1).
+- Added legal compliance Model Ledger in UI footer with creator attribution links.
+
+LEGAL COMPLIANCE VERIFIED | CPU RAM OFFLOAD ACTIVE | ADVANCED UI UNLOCKED.
 
 ## Memory Benchmarks (CPU target)
 - Default mode: 4 steps, cfg 1.1, 768x768, random seed.

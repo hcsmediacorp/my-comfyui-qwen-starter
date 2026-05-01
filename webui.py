@@ -70,6 +70,7 @@ button { border:1px solid #00f5ff !important; color:#00f5ff !important; }
 
 with gr.Blocks(css=css, title="SHWTY Image Edit Studio") as demo:
     gr.Markdown("# SHWTY Image Edit Studio\n### DECRYPTING REALITY...")
+    gr.Markdown("[GNOSIS STATUS]: READY - OFFLOADING WEIGHTS...")
 
     with gr.Row():
         with gr.Column():
@@ -91,6 +92,15 @@ with gr.Blocks(css=css, title="SHWTY Image Edit Studio") as demo:
         rand = gr.Checkbox(value=True, label="Randomize Seed")
 
     run.click(run_edit, [inp, pr, adv, steps, cfg, sampler, scheduler, seed_val, rand], [out, status, prog])
+
+if __name__ == "__main__":
+    demo.launch(server_name="0.0.0.0", server_port=7860)
+7B-Instruct-GGUF  
+- **Alibaba Qwen Team** (Base Qwen Models): https://huggingface.co/Qwen  
+- **LightX** (Lightning LoRA): https://huggingface.co/lightx2v/Qwen-Image-Edit-2511-Lightning  
+
+This project is built upon open-source weights; all rights belong to the respective creators.
+""")
 
 if __name__ == "__main__":
     demo.launch(server_name="0.0.0.0", server_port=7860)

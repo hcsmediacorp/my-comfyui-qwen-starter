@@ -3,6 +3,8 @@ FROM node:22-slim
 ENV CUDA_VISIBLE_DEVICES=-1
 ENV TORCH_CUDA_ARCH_LIST=""
 ENV PYTHONUNBUFFERED=1
+ENV COMFYUI_HIGH_VRAM_THRESHOLD=1
+ENV OMP_NUM_THREADS=1
 
 RUN apt-get update && apt-get install -y \
   git python3 python3-pip python3-venv curl wget \
