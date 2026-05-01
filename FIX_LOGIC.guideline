@@ -1,0 +1,10 @@
+# FIX_LOGIC.guideline
+
+## CLI VALIDATION
+When running in CPU-only mode, strip all VRAM-specific flags (`--highvram`, `--normalvram`, `--lowvram`) and utilize only `--cpu` and `--novram` to prevent Exit Code 2.
+
+## Iteration Rule
+If a new error appears:
+1. Capture exact traceback from logs.
+2. Patch the smallest possible surface (args/deps/paths).
+3. Rebuild and re-check runtime/logs.

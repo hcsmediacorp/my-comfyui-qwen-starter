@@ -1,0 +1,9 @@
+:root {
+  --gnosis-bg: #070b12;
+  --gnosis-panel: #0f1624;
+  --gnosis-accent: #00e5ff;
+  --gnosis-text: #d7f6ff;
+}
+body { background: var(--gnosis-bg) !important; color: var(--gnosis-text) !important; }
+.comfy-menu, .comfyui-body { background: var(--gnosis-panel) !important; }
+button { border-color: var(--gnosis-accent) !important; }

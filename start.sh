@@ -9,5 +9,9 @@ cd "${COMFY_DIR}"
 # Optional: Modell-Dateien via Secret HF_TOKEN beim Start herunterladen
 python3 /app.py
 
-# ComfyUI starten (erzwungener CPU-Modus, HF Spaces Port 7860)
-python3 main.py --cpu --listen 0.0.0.0 --port "${PORT}" --lowvram --preview-method auto
+# Vollständiges Startup-Logging (Konsole + Datei)
+mkdir -p /root/comfy/ComfyUI
+LOG_FILE="/root/comfy/ComfyUI/shwty_debug.log"
+
+# ComfyUI starten (CPU-only, ohne VRAM-Flags)
+python3 main.py --cpu --novram --listen 0.0.0.0 --port "${PORT}" --disable-smart-memory --preview-method auto 2>&1 | tee -a "${LOG_FILE}"
