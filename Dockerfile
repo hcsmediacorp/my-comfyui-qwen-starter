@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
 RUN pip3 install --upgrade pip && pip3 install comfy-cli
 RUN comfy install --skip-pip --cpu
 
-WORKDIR /workspace
+WORKDIR /workspace/ComfyUI
 
 # ComfyUI-GGUF node für GGUF-Unterstützung installieren
 RUN cd custom_nodes && git clone https://github.com/city96/ComfyUI-GGUF.git && \

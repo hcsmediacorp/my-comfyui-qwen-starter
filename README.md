@@ -72,6 +72,8 @@ Wenn Build/Install fehlschlägt, wird folgende Reihenfolge angewendet und dokume
 4. Model-Downloader (`app.py`) mit HF_TOKEN-Integration erstellt
 5. Beispiel-Workflow (4-Step + CFG 1.2) hinzugefügt
 6. README inkl. CPU-Optimierungs- und Fehlerstrategie dokumentiert
+7. Build-Fix: `WORKDIR` auf `/workspace/ComfyUI` korrigiert, damit `custom_nodes` beim Docker-Build existiert
+8. Build-Fix: `app.py` auf relative/konfigurierbare Pfade (`COMFY_DIR`) umgestellt
 
 ## Nächste Schritte
 Ich führe den kompletten Publish-Flow (GitHub Repo + HF Space + Secret + Deployment) direkt aus, sobald GitHub- und Hugging-Face-Zugriff bereitstehen.

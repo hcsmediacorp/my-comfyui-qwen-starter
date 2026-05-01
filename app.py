@@ -2,7 +2,8 @@ import os
 from pathlib import Path
 from huggingface_hub import hf_hub_download
 
-BASE = Path('/workspace/ComfyUI/models')
+COMFY_DIR = Path(os.getenv('COMFY_DIR', './ComfyUI'))
+BASE = COMFY_DIR / 'models'
 TARGETS = {
     'diffusion_models': [
         ('unsloth/Qwen-Image-Edit-2511-GGUF', 'Q4_K_M.gguf'),
