@@ -31,6 +31,7 @@ COPY --chown=root:root requirements.txt /requirements.txt
 RUN pip install -r /requirements.txt
 COPY --chown=root:root start.sh /start.sh
 COPY --chown=root:root app.py /app.py
+COPY --chown=root:root webui.py /webui.py
 RUN chmod +x /start.sh
 
 EXPOSE 7860

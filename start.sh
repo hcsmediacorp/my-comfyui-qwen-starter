@@ -13,5 +13,8 @@ python3 /app.py
 mkdir -p /root/comfy/ComfyUI
 LOG_FILE="/root/comfy/ComfyUI/shwty_debug.log"
 
-# ComfyUI starten (CPU-only, ohne VRAM-Flags)
-python3 main.py --cpu --listen 0.0.0.0 --port "${PORT}" --disable-smart-memory --preview-method auto 2>&1 | tee -a "${LOG_FILE}"
+# ComfyUI API im Hintergrund starten (UI wird über Gradio bereitgestellt)
+python3 main.py --cpu --listen 127.0.0.1 --port 8188 --disable-smart-memory --preview-method auto 2>&1 | tee -a "${LOG_FILE}" &
+
+# Responsive Web-UI starten (Port 7860)
+python3 /webui.py 2>&1 | tee -a "${LOG_FILE}"

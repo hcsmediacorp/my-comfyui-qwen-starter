@@ -96,6 +96,9 @@ t im Workflow: `1.1`)
 - Auflösung: Start bei `1024x1024`, bei CPU-Druck ggf. `768x768`
 
 ## UI/UX Verbesserungen
+- Neue responsive Web-UI (Gradio) für Mobile + Desktop auf Port 7860
+- Einfacher Flow: Image Upload + Prompt + Start
+- Auto-Settings: 4 Steps, Random Seed, CFG 1.1 (im Advanced-Bereich dokumentiert)
 - Start blockiert nicht mehr bei fehlenden Model-Dateien (graceful warnings)
 - Konfigurierbare Dateinamen per ENV: `QWEN_DIFFUSION_FILE`, `QWEN_LIGHTNING_LORA_FILE`
 - Optional komplett ohne Autodownload starten: `SKIP_MODEL_DOWNLOAD=1`
