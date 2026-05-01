@@ -1,11 +1,42 @@
-import os, json, random, time
+import os, json, random, time, threading
 from pathlib import Path
 import requests
+import websocket
 import gradio as gr
 
 COMFY_URL = os.getenv("COMFY_URL", "http://127.0.0.1:8188")
+WS_URL = COMFY_URL.replace("http://", "ws://").replace("https://", "wss://") + "/ws"
 INPUT_DIR = Path("/workspace/ComfyUI/input")
 INPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+PROGRESS = {"value": 0, "text": "[GNOSIS STATUS]: READY"}
+
+
+def ws_listener():
+    while True:
+        try:
+            ws = websocket.create_connection(WS_URL, timeout=30)
+            while True:
+                msg = ws.recv()
+                data = json.loads(msg)
+                t = data.get("type")
+                d = data.get("data", {})
+                if t == "progress":
+                    v = d.get("value", 0)
+                    m = d.get("max", 1) or 1
+                    pct = int((v / m) * 100)
+                    PROGRESS["value"] = pct
+                    PROGRESS["text"] = f"[GNOSIS STATUS]: STEP {v}/{m} - OFFLOADING WEIGHTS..."
+                elif t == "executing":
+                    node = d.get("node")
+                    if node is not None:
+                        PROGRESS["text"] = f"[GNOSIS STATUS]: EXECUTING NODE {node}"
+                elif t == "execution_success":
+                    PROGRESS["value"] = 100
+                    PROGRESS["text"] = "[GNOSIS STATUS]: COMPLETE"
+        except Exception:
+            PROGRESS["text"] = "[GNOSIS STATUS]: WS reconnecting..."
+            time.sleep(2)
 
 
 def build_prompt_payload(user_prompt: str, seed: int, steps: int, cfg: float, sampler: str, scheduler: str):
@@ -27,9 +58,10 @@ def simplify_error(status_code: int, text: str):
         err = data.get("error", {})
         typ = err.get("type", "unknown")
         msg = err.get("message", "")
-        return f"[SYSTEM FAILURE] {typ} - {msg} - Suggested Fix: check RECOVERY_PROTOCOL.md"
+        node = err.get("node_id", "?")
+        return f"[SYSTEM FAILURE]: {typ} - Node {node} - {msg} - Suggested Fix: check RECOVERY_PROTOCOL.md"
     except Exception:
-        return f"[SYSTEM FAILURE] HTTP {status_code}: {text[:180]}"
+        return f"[SYSTEM FAILURE]: HTTP {status_code} - Suggested Fix: check RECOVERY_PROTOCOL.md"
 
 
 def run_edit(image, prompt, adv_enabled, steps, cfg, sampler, scheduler, seed_val, randomize_seed):
@@ -47,19 +79,22 @@ def run_edit(image, prompt, adv_enabled, steps, cfg, sampler, scheduler, seed_va
 
     ts = int(time.time())
     image.save(INPUT_DIR / f"shwty_input_{ts}.png")
-
     payload = {"prompt": build_prompt_payload(prompt.strip(), seed, run_steps, run_cfg, run_sampler, run_scheduler)}
 
     try:
+        PROGRESS["value"] = 1
+        PROGRESS["text"] = "[GNOSIS STATUS]: QUEUED"
         r = requests.post(f"{COMFY_URL}/prompt", json=payload, timeout=30)
         if r.status_code >= 300:
             return None, simplify_error(r.status_code, r.text), 0
     except Exception as e:
-        return None, f"[SYSTEM FAILURE] bridge_offline - {e} - Suggested Fix: verify Comfy API", 0
+        return None, f"[SYSTEM FAILURE]: bridge_offline - {e} - Suggested Fix: verify Comfy API", 0
 
-    for p in (15, 40, 70, 100):
-        time.sleep(0.2)
-    return image, f"GNOSIS CONNECTED | Seed={seed} Steps={run_steps} CFG={run_cfg}", 100
+    return image, f"{PROGRESS['text']} | Seed={seed}", PROGRESS["value"]
+
+
+def poll_progress():
+    return PROGRESS["text"], PROGRESS["value"]
 
 
 css = """
@@ -70,7 +105,7 @@ button { border:1px solid #00f5ff !important; color:#00f5ff !important; }
 
 with gr.Blocks(css=css, title="SHWTY Image Edit Studio") as demo:
     gr.Markdown("# SHWTY Image Edit Studio\n### DECRYPTING REALITY...")
-    gr.Markdown("[GNOSIS STATUS]: READY - OFFLOADING WEIGHTS...")
+    live = gr.Markdown("[GNOSIS STATUS]: READY")
 
     with gr.Row():
         with gr.Column():
@@ -92,10 +127,12 @@ with gr.Blocks(css=css, title="SHWTY Image Edit Studio") as demo:
         rand = gr.Checkbox(value=True, label="Randomize Seed")
 
     run.click(run_edit, [inp, pr, adv, steps, cfg, sampler, scheduler, seed_val, rand], [out, status, prog])
+    demo.load(poll_progress, None, [live, prog], every=1)
 
-if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7860)
-7B-Instruct-GGUF  
+    gr.Markdown("""
+---
+### Model Ledger / Attribution & Credits
+- **Unsloth** (Qwen2.5-VL GGUF quantized): https://huggingface.co/unsloth/Qwen2.5-VL-7B-Instruct-GGUF  
 - **Alibaba Qwen Team** (Base Qwen Models): https://huggingface.co/Qwen  
 - **LightX** (Lightning LoRA): https://huggingface.co/lightx2v/Qwen-Image-Edit-2511-Lightning  
 
@@ -103,4 +140,5 @@ This project is built upon open-source weights; all rights belong to the respect
 """)
 
 if __name__ == "__main__":
+    threading.Thread(target=ws_listener, daemon=True).start()
     demo.launch(server_name="0.0.0.0", server_port=7860)
