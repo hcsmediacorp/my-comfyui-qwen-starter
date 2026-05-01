@@ -16,8 +16,8 @@ TARGETS = {
         ('unsloth/Qwen-Image-Edit-2511-GGUF', 'pig_qwen_image_vae_fp32-f16.gguf'),
     ],
     'loras': [
-        # CPU-effizienter 4-step Adapter (anpassbar)
-        ('ByteDance/Hyper-SD', 'Hyper-SD15-4steps-lora.safetensors'),
+        # Verifiziertes Lightning-LoRA Repo
+        ('lightx2v/Qwen-Image-Edit-2511-Lightning', os.getenv('QWEN_LIGHTNING_LORA_FILE', 'Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors')),
     ],
 }
 

@@ -43,7 +43,7 @@ Die GGUF-Dateien sind groß (u. a. ~13.2GB). Auf CPU Basic kann der erste Start 
 - Diffusion: `unsloth/Qwen-Image-Edit-2511-GGUF / Q4_K_M.gguf`
 - Text Encoder: `unsloth/Qwen-Image-Edit-2511-GGUF / qwen2.5-vl-7b-edit-q4_0.gguf`
 - VAE: `unsloth/Qwen-Image-Edit-2511-GGUF / pig_qwen_image_vae_fp32-f16.gguf`
-- LoRA: aktuell Platzhalter (`ByteDance/Hyper-SD / Hyper-SD15-4steps-lora.safetensors`) – bitte bei Bedarf auf den final gewünschten 4-Step-Lightning-LoRA-Adapter anpassen.
+- LoRA: `lightx2v/Qwen-Image-Edit-2511-Lightning / Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors`
 
 ## Hugging Face Space Setup
 1. Space erstellen: **Docker**, **CPU Basic**
@@ -82,6 +82,18 @@ Wenn Build/Install fehlschlägt, wird folgende Reihenfolge angewendet und dokume
 14. Runtime-Fix: `app.py` wird über absoluten Pfad `/app.py` gestartet (statt relativem `../app.py`)
 15. Runtime-Fix: fehlendes `huggingface_hub` behoben durch Installation von `/requirements.txt` im Docker-Build
 16. Runtime-Fix: fehlende/umbenannte Modelldateien (404) führen nicht mehr zum Container-Abbruch; Downloads sind fehlertolerant und Startup läuft weiter
+
+## Nächste Schritte
+Ich führe den kompletten Publish-Flow (GitHub Repo + HF Space + Secret + Deployment) direkt aus, sobald GitHub- und Hugging-Face-Zugriff bereitstehen.
+t im Workflow: `1.1`)
+- Sampler: `dpmpp_2m` + `karras`
+- LoRA Strength: `0.9 / 0.9`
+- Auflösung: Start bei `1024x1024`, bei CPU-Druck ggf. `768x768`
+
+## UI/UX Verbesserungen
+- Start blockiert nicht mehr bei fehlenden Model-Dateien (graceful warnings)
+- Konfigurierbare Dateinamen per ENV: `QWEN_DIFFUSION_FILE`, `QWEN_LIGHTNING_LORA_FILE`
+- Optional komplett ohne Autodownload starten: `SKIP_MODEL_DOWNLOAD=1`
 
 ## Nächste Schritte
 Ich führe den kompletten Publish-Flow (GitHub Repo + HF Space + Secret + Deployment) direkt aus, sobald GitHub- und Hugging-Face-Zugriff bereitstehen.

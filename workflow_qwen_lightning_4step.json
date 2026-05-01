@@ -9,13 +9,17 @@
     {"id": 5, "type": "KSampler", "pos": [600, 220], "widgets_values": [12345, "fixed", 4, 1.2, "dpmpp_2m", "karras", 1]},
     {"id": 6, "type": "VAEDecode", "pos": [920, 220], "widgets_values": []},
     {"id": 7, "type": "SaveImage", "pos": [1140, 220], "widgets_values": ["qwen_lightning"]},
-    {"id": 8, "type": "LoraLoader", "pos": [360, 50], "widgets_values": ["Hyper-SD15-4steps-lora.safetensors", 1, 1]}
+    {"id": 8, "type": "LoraLoader", "pos": [360, 50], "widgets_values": ["Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors", 0.9, 0.9]}
   ],
   "links": [],
   "groups": [],
   "config": {},
   "extra": {
     "note": "Beispielworkflow. Bei Qwen-Image-Edit ggf. mit ComfyUI-GGUF-spezifischen Loader-Nodes ersetzen. CFG zwischen 1.0 und 1.5 halten."
+  },
+  "version": 0.4
+}
+r-Nodes ersetzen. CFG zwischen 1.0 und 1.5 halten."
   },
   "version": 0.4
 }
