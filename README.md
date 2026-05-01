@@ -41,8 +41,8 @@ Die GGUF-Dateien sind groß (u. a. ~13.2GB). Auf CPU Basic kann der erste Start 
 ## Modelle (vorkonfiguriert)
 `app.py` lädt (falls `HF_TOKEN` gesetzt):
 - Diffusion: `unsloth/Qwen-Image-Edit-2511-GGUF / Q4_K_M.gguf`
-- Text Encoder: `unsloth/Qwen-Image-Edit-2511-GGUF / qwen2.5-vl-7b-edit-q4_0.gguf`
-- VAE: `unsloth/Qwen-Image-Edit-2511-GGUF / pig_qwen_image_vae_fp32-f16.gguf`
+- Text Encoder: `unsloth/Qwen2.5-VL-7B-Instruct-GGUF / Qwen2.5-VL-7B-Instruct-Q4_K_M.gguf`
+- VAE: `calcuis/pig-vae / pig_qwen_image_vae_fp32-f16.gguf`
 - LoRA: `lightx2v/Qwen-Image-Edit-2511-Lightning / Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors`
 
 ## Hugging Face Space Setup

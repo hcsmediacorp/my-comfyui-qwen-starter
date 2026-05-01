@@ -10,10 +10,10 @@ TARGETS = {
         ('unsloth/Qwen-Image-Edit-2511-GGUF', os.getenv('QWEN_DIFFUSION_FILE', 'qwen-image-edit-2511-Q2_K.gguf')),
     ],
     'text_encoders': [
-        ('unsloth/Qwen-Image-Edit-2511-GGUF', 'qwen2.5-vl-7b-edit-q4_0.gguf'),
+        ('unsloth/Qwen2.5-VL-7B-Instruct-GGUF', os.getenv('QWEN_TEXT_ENCODER_FILE', 'Qwen2.5-VL-7B-Instruct-Q4_K_M.gguf')),
     ],
     'vae': [
-        ('unsloth/Qwen-Image-Edit-2511-GGUF', 'pig_qwen_image_vae_fp32-f16.gguf'),
+        ('calcuis/pig-vae', os.getenv('QWEN_VAE_FILE', 'pig_qwen_image_vae_fp32-f16.gguf')),
     ],
     'loras': [
         # Verifiziertes Lightning-LoRA Repo
