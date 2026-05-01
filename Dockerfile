@@ -12,6 +12,9 @@ RUN pip install --upgrade pip && pip install comfy-cli
 # Non-interaktiv für CI/Space-Build
 ENV CI=1
 RUN printf 'n\ny\n' | comfy install --cpu
+# Zusätzliche Runtime-Dependencies laut ComfyUI-Startup-Logs
+RUN /opt/venv/bin/python3 -m pip install -r /root/comfy/ComfyUI/requirements.txt
+RUN /opt/venv/bin/python3 -m pip install alembic Pillow blake3
 RUN mkdir -p /workspace && ln -s /root/comfy/ComfyUI /workspace/ComfyUI
 
 WORKDIR /workspace/ComfyUI
