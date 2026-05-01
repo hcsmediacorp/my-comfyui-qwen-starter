@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from huggingface_hub import hf_hub_download
+from huggingface_hub.errors import HfHubHTTPError, RemoteEntryNotFoundError
 
 COMFY_DIR = Path(os.getenv('COMFY_DIR', './ComfyUI'))
 BASE = COMFY_DIR / 'models'
