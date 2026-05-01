@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-COMFY_DIR="${COMFY_DIR:-./ComfyUI}"
+COMFY_DIR="${COMFY_DIR:-/workspace/ComfyUI}"
 PORT="${PORT:-7860}"
 
 cd "${COMFY_DIR}"
