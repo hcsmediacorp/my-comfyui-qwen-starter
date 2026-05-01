@@ -1,3 +1,13 @@
+---
+title: my-comfyui-qwen-starter
+emoji: 🧠
+colorFrom: indigo
+colorTo: blue
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # my-comfyui-qwen-starter
 
 Docker-basierter Starter für **Hugging Face Spaces (CPU)** mit **ComfyUI**, **ComfyUI-GGUF** und einem vorbereiteten Setup für **Qwen-Image-Edit-2511-GGUF** inklusive 4-Step-Lightning-LoRA-Workflow.
