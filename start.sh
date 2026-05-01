@@ -16,7 +16,7 @@ LOG_FILE="/root/comfy/ComfyUI/shwty_debug.log"
 # ComfyUI API im Hintergrund starten (UI wird über Gradio bereitgestellt)
 # NOTE: --lowvram conflicts with --cpu in this ComfyUI build (Exit Code 2),
 # so we use CPU-safe memory pressure reduction flags.
-python3 main.py --cpu --lowvram --listen 127.0.0.1 --port 8188 --disable-smart-memory --preview-method auto --cache-lru 1 2>&1 | tee -a "${LOG_FILE}" &
+python3 main.py --cpu --listen 127.0.0.1 --port 8188 --disable-smart-memory --preview-method auto --cache-lru 1 2>&1 | tee -a "${LOG_FILE}" &
 
 # Responsive Web-UI starten (Port 7860)
 python3 /webui.py 2>&1 | tee -a "${LOG_FILE}"

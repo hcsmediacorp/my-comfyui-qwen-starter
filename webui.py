@@ -103,7 +103,7 @@ body { background:#000 !important; color:#d7ffe8 !important; font-family:monospa
 button { border:1px solid #00f5ff !important; color:#00f5ff !important; }
 """
 
-with gr.Blocks(css=css, title="SHWTY Image Edit Studio") as demo:
+with gr.Blocks(title="SHWTY Image Edit Studio") as demo:
     gr.Markdown("# SHWTY Image Edit Studio\n### DECRYPTING REALITY...")
     live = gr.Markdown("[GNOSIS STATUS]: READY")
 
@@ -127,7 +127,6 @@ with gr.Blocks(css=css, title="SHWTY Image Edit Studio") as demo:
         rand = gr.Checkbox(value=True, label="Randomize Seed")
 
     run.click(run_edit, [inp, pr, adv, steps, cfg, sampler, scheduler, seed_val, rand], [out, status, prog])
-    demo.load(poll_progress, None, [live, prog], every=1)
 
     gr.Markdown("""
 ---
@@ -142,3 +141,5 @@ This project is built upon open-source weights; all rights belong to the respect
 if __name__ == "__main__":
     threading.Thread(target=ws_listener, daemon=True).start()
     demo.launch(server_name="0.0.0.0", server_port=7860)
+
+    demo.launch(server_name="0.0.0.0", server_port=7860, css=css)
