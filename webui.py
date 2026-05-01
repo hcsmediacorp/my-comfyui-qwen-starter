@@ -39,8 +39,23 @@ def ws_listener():
             time.sleep(2)
 
 
+def resolve_checkpoint_name():
+    pref = os.getenv("QWEN_DIFFUSION_FILE", "qwen-image-edit-2511-Q2_K.gguf")
+    ckpt_dir = Path("/workspace/ComfyUI/models/checkpoints")
+    diff_dir = Path("/workspace/ComfyUI/models/diffusion_models")
+    if (ckpt_dir / pref).exists():
+        return pref
+    # fallback: use first checkpoint if available
+    if ckpt_dir.exists():
+        files = sorted([p.name for p in ckpt_dir.iterdir() if p.is_file()])
+        if files:
+            return files[0]
+    # final fallback: user preference (may still fail, but we expose clear message)
+    return pref
+
+
 def build_prompt_payload(user_prompt: str, seed: int, steps: int, cfg: float, sampler: str, scheduler: str):
-    ckpt = os.getenv("QWEN_DIFFUSION_FILE", "qwen-image-edit-2511-Q2_K.gguf")
+    ckpt = resolve_checkpoint_name()
     return {
         "1": {"class_type": "CheckpointLoaderSimple", "inputs": {"ckpt_name": ckpt}},
         "2": {"class_type": "CLIPTextEncode", "inputs": {"text": user_prompt, "clip": ["1", 1]}},
@@ -59,7 +74,10 @@ def simplify_error(status_code: int, text: str):
         typ = err.get("type", "unknown")
         msg = err.get("message", "")
         node = err.get("node_id", "?")
-        return f"[SYSTEM FAILURE]: {typ} - Node {node} - {msg} - Suggested Fix: check RECOVERY_PROTOCOL.md"
+        hint = ""
+        if typ == "prompt_outputs_failed_validation":
+            hint = " | Suggested Fix: verify checkpoint exists in models/checkpoints or switch to GGUF-native node graph"
+        return f"[SYSTEM FAILURE]: {typ} - Node {node} - {msg}{hint}"
     except Exception:
         return f"[SYSTEM FAILURE]: HTTP {status_code} - Suggested Fix: check RECOVERY_PROTOCOL.md"
 
