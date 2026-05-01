@@ -10,7 +10,6 @@ INPUT_DIR = Path("/workspace/ComfyUI/input")
 INPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 PROGRESS = {"value": 0, "text": "Bereit"}
-LAST_ERROR = ""
 
 
 def ws_listener():
@@ -38,71 +37,83 @@ def ws_listener():
             time.sleep(2)
 
 
-def resolve_checkpoint_name():
-    preferred = os.getenv("QWEN_DIFFUSION_FILE", "qwen-image-edit-2511-Q2_K.gguf")
-    ckpt_dir = Path("/workspace/ComfyUI/models/checkpoints")
-    gguf_dirs = [Path("/workspace/ComfyUI/models/diffusion_models"), Path("/workspace/ComfyUI/models/unet")]
-
-    for d in gguf_dirs:
-        p = d / preferred
-        if d.exists() and p.exists():
-            ckpt_dir.mkdir(parents=True, exist_ok=True)
-            target = ckpt_dir / preferred
-            if not target.exists():
-                try:
-                    target.symlink_to(p)
-                except Exception:
-                    pass
-
-    if ckpt_dir.exists():
-        files = sorted([x.name for x in ckpt_dir.iterdir() if x.is_file() or x.is_symlink()])
-        if preferred in files:
-            return preferred, files
-        if files:
-            return files[0], files
-    return preferred, []
+def get_object_info():
+    try:
+        r = requests.get(f"{COMFY_URL}/object_info", timeout=15)
+        if r.ok:
+            return r.json()
+    except Exception:
+        pass
+    return {}
 
 
-def build_prompt_payload(prompt_text: str, seed: int, steps: int, cfg: float, sampler: str, scheduler: str):
-    ckpt, _ = resolve_checkpoint_name()
+def find_first_node(object_info, candidates):
+    for c in candidates:
+        if c in object_info:
+            return c
+    return None
+
+
+def resolve_file_from_dirs(preferred, dirs):
+    for d in dirs:
+        p = Path(d)
+        if p.exists() and (p / preferred).exists():
+            return preferred
+    for d in dirs:
+        p = Path(d)
+        if p.exists():
+            files = sorted([x.name for x in p.iterdir() if x.is_file() or x.is_symlink()])
+            if files:
+                return files[0]
+    return preferred
+
+
+def build_prompt_payload(prompt_text, seed, steps, cfg, sampler, scheduler):
+    obj = get_object_info()
+
+    # GGUF-native candidates (version-dependent naming in custom nodes)
+    gguf_unet = find_first_node(obj, ["UnetLoaderGGUF", "UNETLoaderGGUF", "Unet Loader (GGUF)"])
+
+    if gguf_unet:
+        unet_name = resolve_file_from_dirs(
+            os.getenv("QWEN_DIFFUSION_FILE", "qwen-image-edit-2511-Q2_K.gguf"),
+            ["/workspace/ComfyUI/models/unet", "/workspace/ComfyUI/models/diffusion_models"],
+        )
+        # Conservative graph that stays close to standard connections.
+        return {
+            "1": {"class_type": gguf_unet, "inputs": {"unet_name": unet_name}},
+            "2": {"class_type": "CLIPTextEncode", "inputs": {"text": prompt_text, "clip": ["4", 1]}},
+            "3": {"class_type": "CLIPTextEncode", "inputs": {"text": "blur, artifacts, distortion", "clip": ["4", 1]}},
+            "4": {"class_type": "CheckpointLoaderSimple", "inputs": {"ckpt_name": resolve_file_from_dirs(unet_name, ["/workspace/ComfyUI/models/checkpoints"])}},
+            "5": {"class_type": "EmptyLatentImage", "inputs": {"width": 768, "height": 768, "batch_size": 1}},
+            "6": {"class_type": "KSampler", "inputs": {"seed": int(seed), "steps": int(steps), "cfg": float(cfg), "sampler_name": sampler, "scheduler": scheduler, "denoise": 1, "model": ["1", 0], "positive": ["2", 0], "negative": ["3", 0], "latent_image": ["5", 0]}},
+            "7": {"class_type": "VAEDecode", "inputs": {"samples": ["6", 0], "vae": ["4", 2]}},
+            "8": {"class_type": "SaveImage", "inputs": {"filename_prefix": "shwty_qwen", "images": ["7", 0]}},
+        }
+
+    # Stable fallback graph
+    ckpt = resolve_file_from_dirs(
+        os.getenv("QWEN_DIFFUSION_FILE", "qwen-image-edit-2511-Q2_K.gguf"),
+        ["/workspace/ComfyUI/models/checkpoints", "/workspace/ComfyUI/models/diffusion_models", "/workspace/ComfyUI/models/unet"],
+    )
     return {
         "1": {"class_type": "CheckpointLoaderSimple", "inputs": {"ckpt_name": ckpt}},
         "2": {"class_type": "CLIPTextEncode", "inputs": {"text": prompt_text, "clip": ["1", 1]}},
         "3": {"class_type": "CLIPTextEncode", "inputs": {"text": "blur, artifacts, distortion", "clip": ["1", 1]}},
         "4": {"class_type": "EmptyLatentImage", "inputs": {"width": 768, "height": 768, "batch_size": 1}},
-        "5": {
-            "class_type": "KSampler",
-            "inputs": {
-                "seed": int(seed),
-                "steps": int(steps),
-                "cfg": float(cfg),
-                "sampler_name": sampler,
-                "scheduler": scheduler,
-                "denoise": 1,
-                "model": ["1", 0],
-                "positive": ["2", 0],
-                "negative": ["3", 0],
-                "latent_image": ["4", 0],
-            },
-        },
+        "5": {"class_type": "KSampler", "inputs": {"seed": int(seed), "steps": int(steps), "cfg": float(cfg), "sampler_name": sampler, "scheduler": scheduler, "denoise": 1, "model": ["1", 0], "positive": ["2", 0], "negative": ["3", 0], "latent_image": ["4", 0]}},
         "6": {"class_type": "VAEDecode", "inputs": {"samples": ["5", 0], "vae": ["1", 2]}},
         "7": {"class_type": "SaveImage", "inputs": {"filename_prefix": "shwty_qwen", "images": ["6", 0]}},
     }
 
 
-def parse_error(status_code: int, text: str):
-    global LAST_ERROR
+def parse_error(status_code, text):
     try:
         d = json.loads(text)
         err = d.get("error", {})
-        typ = err.get("type", "Fehler")
-        msg = err.get("message", "Unbekannter Fehler")
-        node = err.get("node_id", "-")
-        LAST_ERROR = f"{typ} | Node: {node} | {msg}"
-        return f"Fehler: {typ} (Node {node}) – {msg}"
+        return f"Fehler: {err.get('type','unknown')} – {err.get('message','Unbekannt')}"
     except Exception:
-        LAST_ERROR = f"HTTP {status_code}: {text[:200]}"
-        return f"Fehler: HTTP {status_code} – Details siehe Log"
+        return f"Fehler: HTTP {status_code}"
 
 
 def run_edit(image, prompt, adv_enabled, steps, cfg, sampler, scheduler, seed_val, randomize_seed):
@@ -121,16 +132,11 @@ def run_edit(image, prompt, adv_enabled, steps, cfg, sampler, scheduler, seed_va
         seed = random.randint(1, 2_147_483_647)
 
     image.save(INPUT_DIR / f"input_{int(time.time())}.png")
-
-    ckpt, available = resolve_checkpoint_name()
-    if not available:
-        return None, "Kein Modell gefunden. Bitte warte, bis der Download abgeschlossen ist, oder lege ein Modell in ComfyUI/models/checkpoints ab.", 0
-
     payload = {"prompt": build_prompt_payload(prompt.strip(), seed, run_steps, run_cfg, run_sampler, run_scheduler)}
 
     try:
         PROGRESS["value"] = 1
-        PROGRESS["text"] = "Auftrag wird an ComfyUI gesendet …"
+        PROGRESS["text"] = "Auftrag wird gesendet …"
         r = requests.post(f"{COMFY_URL}/prompt", json=payload, timeout=30)
         if r.status_code >= 300:
             return None, parse_error(r.status_code, r.text), 0
@@ -145,56 +151,34 @@ def poll_progress():
 
 
 css = """
-:root { --bg:#f7f9fc; --card:#ffffff; --text:#1f2937; --accent:#2563eb; --muted:#6b7280; }
+:root { --bg:#f7f9fc; --text:#1f2937; --accent:#2563eb; }
 body { background:var(--bg) !important; color:var(--text) !important; }
 .gradio-container { max-width: 1060px !important; margin: 0 auto; }
-.block, .gr-panel, .gr-box, .gr-form, .gr-group { border-radius: 14px !important; }
-button { border-radius: 10px !important; }
-.primary { background:var(--accent) !important; }
 """
 
 with gr.Blocks(title="SHWTY Image Edit Studio") as demo:
-    gr.Markdown("""
-# SHWTY Image Edit Studio (v1 Beta)
-Einfache Bildbearbeitung mit Qwen/ComfyUI auf CPU.
-
-1. Bild hochladen
-2. Wunsch in Textform eingeben
-3. **Generieren** klicken
-""")
+    gr.Markdown("# SHWTY Image Edit Studio (v1 Beta)\nEinfache Bildbearbeitung mit stabilen CPU-Defaults.")
     live = gr.Markdown("**Status:** Bereit")
-
     with gr.Row():
-        with gr.Column(scale=1):
+        with gr.Column():
             inp = gr.Image(type="pil", label="1) Bild hochladen")
-            pr = gr.Textbox(label="2) Prompt", lines=3, placeholder="z. B. Person am Strand bei Sonnenuntergang")
+            pr = gr.Textbox(label="2) Prompt", lines=3)
             adv = gr.Checkbox(label="Erweiterte Einstellungen aktivieren", value=False)
             run = gr.Button("3) Generieren", variant="primary")
-        with gr.Column(scale=1):
-            out = gr.Image(label="Ausgabe / Vorschau")
-            status = gr.Textbox(label="Status & Hinweise", interactive=False)
+        with gr.Column():
+            out = gr.Image(label="Ausgabe")
+            status = gr.Textbox(label="Status", interactive=False)
             prog = gr.Slider(0, 100, value=0, step=1, label="Fortschritt", interactive=False)
 
     with gr.Accordion("Erweiterte Einstellungen", open=False):
-        gr.Markdown("Nur ändern, wenn du bewusst feintunen willst. Standardwerte sind stabil für CPU.")
         steps = gr.Slider(1, 50, value=4, step=1, label="Steps")
         cfg = gr.Slider(0.0, 10.0, value=1.1, step=0.1, label="CFG")
         sampler = gr.Dropdown(["euler", "dpmpp_2m"], value="euler", label="Sampler")
         scheduler = gr.Dropdown(["simple", "karras"], value="simple", label="Scheduler")
         seed_val = gr.Number(value=12345, label="Seed")
-        rand = gr.Checkbox(value=True, label="Seed zufällig setzen")
+        rand = gr.Checkbox(value=True, label="Seed zufällig")
 
     run.click(run_edit, [inp, pr, adv, steps, cfg, sampler, scheduler, seed_val, rand], [out, status, prog])
-
-    gr.Markdown("""
----
-### Credits / Modell-Hinweise
-- Unsloth (Qwen2.5-VL GGUF): https://huggingface.co/unsloth/Qwen2.5-VL-7B-Instruct-GGUF
-- Qwen Team: https://huggingface.co/Qwen
-- LightX Lightning LoRA: https://huggingface.co/lightx2v/Qwen-Image-Edit-2511-Lightning
-
-Dieses Projekt nutzt Open-Source-Gewichte; alle Rechte liegen bei den jeweiligen Erstellern.
-""")
 
 if __name__ == "__main__":
     threading.Thread(target=ws_listener, daemon=True).start()
