@@ -42,15 +42,23 @@ def ws_listener():
 def resolve_checkpoint_name():
     pref = os.getenv("QWEN_DIFFUSION_FILE", "qwen-image-edit-2511-Q2_K.gguf")
     ckpt_dir = Path("/workspace/ComfyUI/models/checkpoints")
-    diff_dir = Path("/workspace/ComfyUI/models/diffusion_models")
+    # GGUF files are often in diffusion_models/unet; copy-link into checkpoints for CheckpointLoader fallback
+    gguf_dirs = [Path("/workspace/ComfyUI/models/diffusion_models"), Path("/workspace/ComfyUI/models/unet")]
+    for d in gguf_dirs:
+        if d.exists() and (d / pref).exists():
+            ckpt_dir.mkdir(parents=True, exist_ok=True)
+            target = ckpt_dir / pref
+            if not target.exists():
+                try:
+                    target.symlink_to(d / pref)
+                except Exception:
+                    pass
     if (ckpt_dir / pref).exists():
         return pref
-    # fallback: use first checkpoint if available
     if ckpt_dir.exists():
-        files = sorted([p.name for p in ckpt_dir.iterdir() if p.is_file()])
+        files = sorted([p.name for p in ckpt_dir.iterdir() if p.is_file() or p.is_symlink()])
         if files:
             return files[0]
-    # final fallback: user preference (may still fail, but we expose clear message)
     return pref
 
 
