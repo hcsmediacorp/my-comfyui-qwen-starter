@@ -20,6 +20,8 @@ WORKDIR /workspace/ComfyUI
 RUN cd custom_nodes && git clone https://github.com/city96/ComfyUI-GGUF.git && \
   cd ComfyUI-GGUF && pip3 install -r requirements.txt
 
+COPY --chown=root:root requirements.txt /requirements.txt
+RUN pip install -r /requirements.txt
 COPY --chown=root:root start.sh /start.sh
 COPY --chown=root:root app.py /app.py
 RUN chmod +x /start.sh
