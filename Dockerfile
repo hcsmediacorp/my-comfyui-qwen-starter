@@ -11,7 +11,8 @@ ENV PATH="/opt/venv/bin:$PATH"
 RUN pip install --upgrade pip && pip install comfy-cli
 # Non-interaktiv für CI/Space-Build
 ENV CI=1
-RUN printf 'n\n' | comfy install --cpu
+RUN printf 'n\ny\n' | comfy install --cpu
+RUN mkdir -p /workspace && ln -s /root/comfy/ComfyUI /workspace/ComfyUI
 
 WORKDIR /workspace/ComfyUI
 

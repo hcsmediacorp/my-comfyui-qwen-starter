@@ -77,6 +77,7 @@ Wenn Build/Install fehlschlägt, wird folgende Reihenfolge angewendet und dokume
 9. Build-Fix: PEP668-Fehler gelöst durch Python-Venv (`/opt/venv`) und Installation über `pip` im Venv statt System-`pip3`
 10. Build-Fix: `comfy install` auf non-interaktiv umgestellt (`CI=1`, Input-Pipe), damit kein Tracking-Prompt den Build abbricht
 11. Build-Fix: inkompatibles Flag `--skip-pip` entfernt (in comfy-cli 1.7.3 nicht unterstützt)
+12. Build-Fix: zweites `comfy install` Prompt (Installationsbestätigung) automatisiert (`n` für Tracking, `y` für ComfyUI-Install), danach Symlink nach `/workspace/ComfyUI`
 
 ## Nächste Schritte
 Ich führe den kompletten Publish-Flow (GitHub Repo + HF Space + Secret + Deployment) direkt aus, sobald GitHub- und Hugging-Face-Zugriff bereitstehen.
